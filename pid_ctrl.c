@@ -1,31 +1,7 @@
+#include <stdint.h>
+#include <stdbool.h>
 
-/* Chose unit you are doing */
-
-#define FLOAT_EPSILON 0.0001f
-
-typedef struct 
-{
-  float   kp;           /* Proportional*/
-  float   ki;           /* ki = kp *T / Ti  */
-  float   kd;           /* kd = kp * Td / T */
-  float   Ti;           /* Integral */     
-  float   Td;           /* Derivetive */     
-  float   maintain = 0; /* Maintain value */
-  float   T;            /* Sampling time */
-  float   set_point;    /* Set point */
-  bool    direct = false;
-
-  float   *in;          /* PID input or System Output */
-  float   *out;         /* PID output or System input */
-  
-  float   max_out;      /* PID maximum output */
-  float   min_out;      /* PID minimum output */
-
-  float (*in_conv)(float);  /* Sensor equation adc to unit */
-  float (*out_conv)(float); /* convert to dac or pwm */
-}pid_t;
-
-/* Note input and setpoint should have the same unit */
+#include "pid_ctrl.h"
 
 void pid_calculate_ki_kd(pid_t *pid)
 {
@@ -47,16 +23,13 @@ void pid_calculate_ki_kd(pid_t *pid)
     pid->kd = pid->kp * pid->Td / pid->T;
   }
 }
-/* calculate a b and c to facilitate the calculations */
-void pid_init(pid_t *pid, callback_func)
+
+void pid_init(pid_t *pid)
 {
 
 }
 
-/* values are calculated */
-/* It s easier to keep calculations of PID ouput in physical values
-  volts or mAmps or Celcuis, or meters ...*/
-pid_control(pid_t *pid)
+void pid_control(pid_t *pid)
 {
   float ekt, pkt, qkt, ukt, ykt;
 
@@ -94,15 +67,13 @@ pid_control(pid_t *pid)
 
   pkt_1 = pkt;
   ekt_1 = ekt_1;
-
 }
 
-/* Identify system parameters */
-pid_zigler_nicols_identification()
+void pid_zigler_nicols_identification(zig_param *param)
 {
-  /* Run a step from zero then start 
+  /*
    *  read input  
-   *  Write output 
+   *  Write a step to output 
    *  Start timer 
    *  record the point where small change has happened
    *  wait for steady state
