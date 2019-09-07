@@ -25,10 +25,10 @@ typedef struct
   float kd;              /* kd = kp * Td / T */
   float Ti;              /* Integral */     
   float Td;              /* Derivetive */     
-  float maint;    /* Maintain value */
-  float T;               /* Sampling time */
-  float spt;       /* Set point */
-  bool  direct;  /* reverse or direct mode */
+  float maint;           /* Maintain value */
+  float T;               /* Sampling time seconds*/
+  float spt;             /* Set point */
+  bool  direct;          /* reverse or direct mode */
 
   pid_io_t io; 
   float ekt_1;           /* Previous error state */
