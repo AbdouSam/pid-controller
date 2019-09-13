@@ -37,6 +37,9 @@ PID implimentation for embedded
   monotonic, and sluggish, and a response that is dominated by a 
   single-pole exponential 'lag'.
 
+### References 
+[https://www.sciencedirect.com/science/article/pii/S1474667015325866]
+
 
 
 
