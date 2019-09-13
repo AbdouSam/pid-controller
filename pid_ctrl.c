@@ -9,6 +9,7 @@
  * - add first order filtering to derivetive
  * - 
  */
+
 void pid_calculate_ki_kd(pid_ctrl_t *pid)
 {
   if(pid->Ti < FLOAT_EPSILON)
@@ -85,15 +86,15 @@ float pid_control(pid_ctrl_t *pid, float input)
   }
 }
 
-void pid_zigler_nicols_identification(pid_zig_t *param, pid_ctrl_t pid)
+void pid_zigler_nicols_identification(pid_zig_t *param, pid_ctrl_t *pid)
 {
   /*
-   *  read input  
-   *  Write a step to output 
-   *  Start timer 
-   *  record the point where small change has happened
-   *  wait for steady state
-   *  stop timer 
+   * Read input  
+   * Write a step to output 
+   * Start timer 
+   * Record the point where small change has happened
+   * Wait for steady state
+   * Stop timer 
    * K = max - min;
    * T_dead = Timer_dead;
    * T_steady = Timer_steady;
