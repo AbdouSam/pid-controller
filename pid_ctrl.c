@@ -10,15 +10,15 @@
  * - 
  */
 
-void pid_calculate_ki_kd(pid_ctrl_t *pid)
+void pid_calculate_ki_kd(pid_ctrl_t *pid, float Ti, float Td)
 {
-  if(pid->Ti < FLOAT_EPSILON)
+  if(Ti < FLOAT_EPSILON)
   {
     pid->ki = 0;
   }
   else
   {
-    pid->ki = pid->kp * pid->T / pid->Ti;
+    pid->ki = pid->kp * pid->T / Ti;
   }
 
   if(pid->T < FLOAT_EPSILON)
@@ -27,7 +27,7 @@ void pid_calculate_ki_kd(pid_ctrl_t *pid)
   }
   else
   {
-    pid->kd = pid->kp * pid->Td / pid->T;
+    pid->kd = pid->kp * Td / pid->T;
   }
 }
 
@@ -58,23 +58,26 @@ float pid_control(pid_ctrl_t *pid, float input)
     ekt = pid->spt - ykt;
   }
 
-  pkt = pid->ki * ekt + pid->pkt_1; 
-  qkt = pid->kd * (ekt - pid->ekt_1); 
+  pkt = pid->ki * ekt + pid->pstate.pkt_1; 
+  qkt = pid->kd * (ekt - pid->pstate.ekt_1); 
+  /* Filter the derivative */
+  qkt = (1 - pid->qcoeff) * qkt + pid->qcoeff * pid->pstate.qkt_1;
   ukt = pid->kp * ekt + pkt + qkt + pid->maint;
 
   if(ukt > pid->io.max_out)
   {
-    pkt = pid->pkt_1;
+    pkt = pid->pstate.pkt_1;
     ukt = pid->io.max_out;
   }
   else if(ukt < pid->io.min_out)
   {
-    pkt = pid->pkt_1;
+    pkt = pid->pstate.pkt_1;
     ukt = pid->io.min_out;
   }
 
-  pid->pkt_1 = pkt;
-  pid->ekt_1 = ekt;
+  pid->pstate.pkt_1 = pkt;
+  pid->pstate.ekt_1 = ekt;
+  pid->pstate.qkt_1 = qkt;
 
   if(pid->io.out_conv != NULL)
   {

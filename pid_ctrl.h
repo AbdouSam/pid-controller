@@ -5,7 +5,8 @@
 #include <stdbool.h>
 
 
-#define FLOAT_EPSILON 0.00001f
+#define FLOAT_EPSILON    0.00001f
+#define Q_COEFF_DEFAULT  0.02f /* 0.0 means no filtering */
 
 typedef struct
 {
@@ -17,22 +18,29 @@ typedef struct
 
 }pid_io_t;
 
+typedef struct
+{
+
+  float ekt_1;           /* Previous error state */
+  float pkt_1;           /* Pervious integral state */
+  float qkt_1;           /* Pervious derivative state */
+
+}pid_istate_t;
+
 typedef struct 
 {
 
   float kp;              /* Proportional*/
   float ki;              /* ki = kp *T / Ti  */
   float kd;              /* kd = kp * Td / T */
-  float Ti;              /* Integral */     
-  float Td;              /* Derivetive */     
   float maint;           /* Maintain value */
   float T;               /* Sampling time seconds*/
   float spt;             /* Set point */
   bool  direct;          /* reverse or direct mode */
+  float qcoeff;          /* derivative filtering coeff */
 
   pid_io_t io; 
-  float ekt_1;           /* Previous error state */
-  float pkt_1;           /* Pervious integral state */
+  pid_istate_t pstate;
 
 }pid_ctrl_t;
 
@@ -54,11 +62,13 @@ typedef struct
  * ki and kd using this function.
  *
  * @param pid pointer to pid instance
+ * @param Ti Integral time constante
+ * @param Td derivative time constante
  *
- * @return @c void
+ * @return void
  */
 
-void pid_calculate_ki_kd(pid_ctrl_t *pid);
+void pid_calculate_ki_kd(pid_ctrl_t *pid, float Ti, float Td);
 
 /**
  * @brief initialization function
@@ -107,7 +117,7 @@ float pid_control(pid_ctrl_t *pid, float input);
  * @param pid the pid parameters kp ki and kd will be updated if the 
  *            identification is successful
  *
- * @return @c void
+ * @return void
  */
 
 void pid_zigler_nicols_identification(pid_zig_t *param, pid_ctrl_t *pid);
